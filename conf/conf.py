@@ -4,15 +4,15 @@ output_docs_folder='./output_docs/'
 
 #### VCF Conversion config parameters ####
 allele_counts=False # Variable still in test, leave it as False for now.
-reference_genome='GRCh37' # Choose one between NCBI36, GRCh37, GRCh38
-datasetId='test'
+reference_genome='GRCh38' # Choose one between NCBI36, GRCh37, GRCh38
+datasetId='testdataset-giab'
 case_level_data=True
 exact_heterozygosity=True
-num_rows=15000000
-verbosity=False # This variable, if True, will make the program run slower but give logs about all the skipped variants and the reason why.
+num_rows=100
+verbosity=True # This variable, if True, will make the program run slower but give logs about all the skipped variants and the reason why.
 
 ### MongoDB parameters ###
-database_host = 'mongo'
+database_host = 'host.docker.internal'
 database_port = 27017
 database_user = 'root'
 database_password = 'example'

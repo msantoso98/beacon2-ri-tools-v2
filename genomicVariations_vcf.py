@@ -28,7 +28,7 @@ with open('files/deref_schemas/genomicVariations.json') as json_file:
 
 try:
     with open('pipelines/default/templates/populations.json') as pipeline_file:
-        pipeline = json.load(pipeline_file)
+        pipeline = None
 except Exception:
     pipeline = None
 
@@ -124,12 +124,14 @@ def generate(dict_properties):
                     formatted=True
                     w=0
                     for entry in format_list:
-                        if 'uploaded_allele' in entry.lower():
+                        if 'uploaded_variation' in entry.lower():
                             varianttype_num=w
                         elif entry.lower() == 'symbol':
                             gene_num=w
-                        elif 'hgvsp' in entry.lower():
-                            protein_num=w
+                        elif 'amino_acids' in entry.lower():
+                            protein_change_num=w
+                        elif 'protein_position' in entry.lower():
+                            protein_pos_num=w
                         elif 'consequence' in entry.lower():
                             moleculareffect_num=w
                         w+=1
@@ -274,28 +276,16 @@ def generate(dict_properties):
                 annotation_list=v.INFO.get('CSQ')
                 if annotation_list != None:
                     annotation_list=annotation_list.split('|')
-                    #print(annotation_list)
-                    #print(varianttype_num)
-                    try:
-                        varianttype=annotation_list[varianttype_num]
-                        if '/' in varianttype:
-                            if len(varianttype)> 3:
-                                varianttype='INDEL'
-                            else:
-                                varianttype='SNP'
-                        else:
-                            varianttype='Structural Variant'
-                    except Exception:
-                        varianttype='UNKNOWN'
-                    #print(varianttype)
+                    varianttype=v.var_type.upper()
                     gene=annotation_list[gene_num]
                     if gene != '':
                         dict_to_xls['molecularAttributes|geneIds']=gene
-                    protein=annotation_list[protein_num]
+                    protein_change=annotation_list[protein_change_num]
+                    protein_pos=annotation_list[protein_pos_num]
                     #print(protein)
-                    if protein != '':
-                        protein=protein.split('p.')
-                        aminoacidchange=protein[1]
+                    if protein_change != '':
+                        protein_change = protein_change.split("/")
+                        aminoacidchange=f"{protein_change[0]}{protein_pos}{protein_change[1]}"
                         dict_to_xls['molecularAttributes|aminoacidChanges']=aminoacidchange
                     moleculareffectt=annotation_list[moleculareffect_num]
                     
@@ -424,7 +414,8 @@ def generate(dict_properties):
                         print('variant in chr: {} with start position: {} and reference base: {} skipped because being of type Structural Variant, which is not supported yet'.format(chrom, start, ref))
                     skipped_counts+=1
                     continue
-            except Exception:
+            except Exception as e:
+                print(e)
                 pass
             try:
                 num_of_populations=0
