@@ -124,9 +124,7 @@ def generate(dict_properties):
                     formatted=True
                     w=0
                     for entry in format_list:
-                        if 'uploaded_variation' in entry.lower():
-                            varianttype_num=w
-                        elif entry.lower() == 'symbol':
+                        if entry.lower() == 'symbol':
                             gene_num=w
                         elif 'amino_acids' in entry.lower():
                             protein_change_num=w
