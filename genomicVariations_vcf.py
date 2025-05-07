@@ -8,6 +8,7 @@ import uuid
 import json
 import gc
 import gzip
+import csv
 from pymongo.mongo_client import MongoClient
 from validators.genomicVariations import GenomicVariations
 
@@ -40,6 +41,13 @@ try:
 except Exception:
     template = None
 
+if conf.sample_id_mapping_file:
+    id_mapping_dict = {}
+    with open(conf.sample_id_mapping_file, 'r') as f:
+        csv_reader = csv.reader(f, delimiter=",")
+        for row in csv_reader:
+            id_mapping_dict[row[0]] = row[1]
+            
 def commas(prova):
     length_iter=0
     array_of_newdicts=[]
@@ -138,7 +146,10 @@ def generate(dict_properties):
         if conf.case_level_data == False:
             vcf.set_samples([])
         else:
-            my_target_list = vcf.samples
+            if conf.sample_id_mapping_file:
+                my_target_list = [id_mapping_dict[sample] for sample in vcf.samples]
+            else:
+                my_target_list = vcf.samples
             try:
                 client.beacon.create_collection(name="targets")
                 found_item=client.beacon.targets.find_one({"datasetId": conf.datasetId})

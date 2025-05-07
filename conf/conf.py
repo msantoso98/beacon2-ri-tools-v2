@@ -9,7 +9,7 @@ datasetId='testdataset-giab'
 case_level_data=True
 exact_heterozygosity=True
 num_rows=100
-verbosity=True # This variable, if True, will make the program run slower but give logs about all the skipped variants and the reason why.
+verbosity=False # This variable, if True, will make the program run slower but give logs about all the skipped variants and the reason why.
 
 ### MongoDB parameters ###
 database_host = 'host.docker.internal'
@@ -18,3 +18,5 @@ database_user = 'root'
 database_password = 'example'
 database_name = 'beacon'
 database_auth_source = 'admin'
+
+sample_id_mapping_file = "./conf/sample_id_mapping.csv"
