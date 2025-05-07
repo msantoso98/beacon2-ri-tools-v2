@@ -113,6 +113,7 @@ def generate(dict_properties):
     dict_true={}
     i=1
     l=0
+    pbar = tqdm(total = num_rows)
     if conf.case_level_data == True:
         try:
             client.beacon.create_collection(name="caseLevelData")
@@ -147,7 +148,10 @@ def generate(dict_properties):
             vcf.set_samples([])
         else:
             if conf.sample_id_mapping_file:
-                my_target_list = [id_mapping_dict[sample] for sample in vcf.samples]
+                try:
+                    my_target_list = [id_mapping_dict[sample] for sample in vcf.samples]
+                except KeyError as e:
+                    raise ValueError(f"{conf.sample_id_mapping_file} does not contain id mapping for either {vcf.samples}")
             else:
                 my_target_list = vcf.samples
             try:
@@ -167,8 +171,6 @@ def generate(dict_properties):
                 client.beacon.targets.insert_many(target_list)
 
         skipped_counts=0
-
-        pbar = tqdm(total = num_rows)
 
         for v in vcf:
             dict_to_xls={}
@@ -294,7 +296,10 @@ def generate(dict_properties):
                     #print(protein)
                     if protein_change != '':
                         protein_change = protein_change.split("/")
-                        aminoacidchange=f"{protein_change[0]}{protein_pos}{protein_change[1]}"
+                        try:
+                            aminoacidchange=f"{protein_change[0]}{protein_pos}{protein_change[1]}"
+                        except IndexError as e:
+                            aminoacidchange=protein_change[0]
                         dict_to_xls['molecularAttributes|aminoacidChanges']=aminoacidchange
                     moleculareffectt=annotation_list[moleculareffect_num]
                     
