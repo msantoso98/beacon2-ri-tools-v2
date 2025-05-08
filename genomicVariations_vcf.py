@@ -10,7 +10,6 @@ import gc
 import gzip
 import csv
 from pymongo.mongo_client import MongoClient
-from pymongo.errors import BulkWriteError
 from validators.genomicVariations import GenomicVariations
 
 client = MongoClient(
@@ -1095,17 +1094,11 @@ def generate(dict_properties):
 
             if total_dict != []:
                 if i == num_rows:
-                    try:
-                        client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
-                    except BulkWriteError as e:
-                        print(e._message)
+                    client.beacon.genomicVariations.insert_many(total_dict)
                     #pbar.update(1)
                     break
                 elif (i/10000).is_integer():
-                    try:
-                        client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
-                    except BulkWriteError as e:
-                        print(e._message)
+                    client.beacon.genomicVariations.insert_many(total_dict)
 
                     del definitivedict
                     del total_dict
@@ -1118,17 +1111,11 @@ def generate(dict_properties):
 
     if total_dict != []:
         if i != num_rows:
-            try:
-                client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
-            except BulkWriteError as e:
-                print(e._message)
+            client.beacon.genomicVariations.insert_many(total_dict)
     if conf.case_level_data == True:
         if total_dict2 != []:
             if i != num_rows:
-                try:
-                    client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
-                except BulkWriteError as e:
-                    print(e._message)
+                client.beacon.genomicVariations.insert_many(total_dict)
 
 
 
