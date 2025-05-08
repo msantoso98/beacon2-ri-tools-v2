@@ -6,10 +6,11 @@ output_docs_folder='./output_docs/'
 allele_counts=False # Variable still in test, leave it as False for now.
 reference_genome='GRCh38' # Choose one between NCBI36, GRCh37, GRCh38
 datasetId='testdataset-giab'
-case_level_data=True
+case_level_data=False
 exact_heterozygosity=True
 num_rows=100
 verbosity=False # This variable, if True, will make the program run slower but give logs about all the skipped variants and the reason why.
+pass_only=True # if true, only keep pass variants
 
 ### MongoDB parameters ###
 database_host = 'host.docker.internal'

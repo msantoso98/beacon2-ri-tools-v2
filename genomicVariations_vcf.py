@@ -10,6 +10,7 @@ import gc
 import gzip
 import csv
 from pymongo.mongo_client import MongoClient
+from pymongo.errors import BulkWriteError
 from validators.genomicVariations import GenomicVariations
 
 client = MongoClient(
@@ -123,6 +124,7 @@ def generate(dict_properties):
     for vcf_filename in glob.glob("files/vcf/files_to_read/*.vcf.gz"):
         print(vcf_filename)
         vcf = VCF(vcf_filename, strict_gt=True)
+        total_lines_read = 0 # number of lines read
         formatted=False
         for rec in vcf.header_iter():
             d = rec.info()
@@ -173,6 +175,11 @@ def generate(dict_properties):
         skipped_counts=0
 
         for v in vcf:
+            if conf.pass_only and "PASS" not in v.FILTERS:
+                continue
+            if total_lines_read >= conf.num_rows:
+                break
+            total_lines_read += 1
             dict_to_xls={}
             if template != None:
                 varianttype=v.INFO.get(template["variantType"])
@@ -1088,11 +1095,18 @@ def generate(dict_properties):
 
             if total_dict != []:
                 if i == num_rows:
-                    client.beacon.genomicVariations.insert_many(total_dict)
+                    try:
+                        client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
+                    except BulkWriteError as e:
+                        print(e._message)
                     #pbar.update(1)
                     break
                 elif (i/10000).is_integer():
-                    client.beacon.genomicVariations.insert_many(total_dict)
+                    try:
+                        client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
+                    except BulkWriteError as e:
+                        print(e._message)
+
                     del definitivedict
                     del total_dict
                     gc.collect()
@@ -1104,11 +1118,17 @@ def generate(dict_properties):
 
     if total_dict != []:
         if i != num_rows:
-            client.beacon.genomicVariations.insert_many(total_dict)
+            try:
+                client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
+            except BulkWriteError as e:
+                print(e._message)
     if conf.case_level_data == True:
         if total_dict2 != []:
             if i != num_rows:
-                client.beacon.caseLevelData.insert_many(total_dict2)
+                try:
+                    client.beacon.genomicVariations.insert_many(total_dict, ordered=False)
+                except BulkWriteError as e:
+                    print(e._message)
 
 
 
