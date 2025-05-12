@@ -707,18 +707,14 @@ def generate(dict_properties):
                         else:
                             j+=1
                 elif conf.exact_heterozygosity == True:
-                    j=0
                     dict_trues={"id": HGVSId, "datasetId": conf.datasetId}
-                    for zygo in v.genotypes:
+                    for j, zygo in enumerate(v.genotypes):
                         if zygo[0] == 1 and zygo[1]== 1:
                             dict_trues[str(j)]="11"
-                            j+=1
                         elif zygo[0] == 1 and zygo[1]== 0:
                             dict_trues[str(j)]="10"
-                            j+=1
                         elif zygo[0] == 0 and zygo[1]== 1:
                             dict_trues[str(j)]="01"
-                            j+=1
 
             k=0
 
@@ -1115,7 +1111,7 @@ def generate(dict_properties):
     if conf.case_level_data == True:
         if total_dict2 != []:
             if i != num_rows:
-                client.beacon.genomicVariations.insert_many(total_dict)
+                client.beacon.caseLevelData.insert_many(total_dict2)
 
 
 
